@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "3vVTDf7dLv1hyAwj+ibQlK41kmT6CH9+qabaBRVy3FQ=",
+  "Source": "ApiUsuariosREST",
+  "BasePath": "_content/ApiUsuariosREST",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

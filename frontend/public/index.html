@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Empleados</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 1rem;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    input {
+      margin: 0.25rem;
+    }
+    button {
+      margin-right: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gestión de Empleados</h1>
+
+  <form id="formEmpleado">
+    <input type="text" id="nombre" placeholder="Nombre" required />
+    <input type="email" id="correo" placeholder="Correo" required />
+    <input type="text" id="rol" placeholder="Rol" required />
+    <button type="submit">Agregar</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaEmpleados"></tbody>
+  </table>
+
+  <script>
+    const API_URL = "https://localhost:5001/api/Empleados";
+    let editId = null;
+
+    const form = document.getElementById("formEmpleado");
+    const tabla = document.getElementById("tablaEmpleados");
+
+    const cargarEmpleados = async () => {
+      
+      const res = await fetch(API_URL);
+      const empleados = await res.json();
+
+      tabla.innerHTML = "";
+      empleados.forEach(emp => {
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td>${emp.nombre}</td>
+          <td>${emp.correo}</td>
+          <td>${emp.rol}</td>
+          <td>
+            <button onclick='editar(${JSON.stringify(emp)})'>Editar</button>
+            <button onclick='borrar(${emp.id})'>Borrar</button>
+          </td>
+        `;
+        tabla.appendChild(fila);
+      });
+    };
+
+    const editar = (emp) => {
+      document.getElementById("nombre").value = emp.nombre;
+      document.getElementById("correo").value = emp.correo;
+      document.getElementById("rol").value = emp.rol;
+      editId = emp.id;
+    };
+
+    const borrar = async (id) => {
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      cargarEmpleados();
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const empleado = {
+        nombre: document.getElementById("nombre").value,
+        correo: document.getElementById("correo").value,
+        rol: document.getElementById("rol").value
+      };
+
+      if (editId) {
+        await fetch(`${API_URL}/${editId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editId, ...empleado })
+        });
+        editId = null;
+      } else {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(empleado)
+        });
+      }
+
+      form.reset();
+      cargarEmpleados();
+    });
+
+    cargarEmpleados();
+  </script>
+</body>
+</html>
